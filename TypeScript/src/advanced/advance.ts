@@ -391,7 +391,7 @@ type PromiseTuple = MapingPromise<Tuple>;
 let promiseTurple: PromiseTuple = [
   new Promise((resolve) => resolve(1)),
   new Promise((resolve) => resolve("1")),
-  new Promise((resolve) => resolve("false")),
+  new Promise((resolve) => resolve(false)),
 ];
 
 // unknow

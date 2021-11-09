@@ -10,6 +10,7 @@ module.exports = {
   },
   devServer: {
     open: true,
+    hot: true,
   },
   resolve: {
     extensions: [".ts", ".js", ".cjs", ".json"],
