@@ -1,6 +1,6 @@
 /**
   private修饰符修饰的属性 ： 私有  属性或者方法  实例不能被继承      只能在类声明里面使用
-  public修饰符修饰的属性 ：  公共  属性或者方法  可以被实例继承      实例；类内部可以访问
+  public修饰符修饰的属性 ：  公共  属性或者方法  可以被实例继承      实例；类内部可以访问     若没有赋值 则实例不会继承public修饰的属性  声明在constructor（）参数位置的属性 无论有没有值 最终都会被实例继承
   static修饰符修饰的属性 ：  静态  属性或者方法  不能被实例继承      只有类自己能访问
   protected            1： 受保护的  属性或者方法    只能在父类或者子类中访问  
                            在ts环境中 实例访问protected的属性和方法会报错 但是在控制台可以输出 
@@ -21,6 +21,7 @@
  */
 
 class PersonClass {
+  public school: string;
   private salary: number = 1000;
   private static adress: string;
   protected hobbies: any[] = ["singing", "dancing"];
@@ -53,7 +54,7 @@ class PersonClass {
 
 let bobbb = new PersonClass("bbbbb", 10);
 
-console.log(bobbb.insideName);
+console.log(bobbb);
 bobbb.insideName = { name: "xiaohong", money: 10000 };
 console.log(bobbb.insideName);
 class PersonChild extends PersonClass {
@@ -75,3 +76,35 @@ class PersonChild extends PersonClass {
 const pc = new PersonChild("litte", 18, "man");
 console.log(pc);
 pc.getBaseHobbies();
+
+// 用类 实现接口 这个类的实例必须有接口中规定的属性 且均为public 修饰的属性
+interface Food {
+  type: string;
+  brand: string;
+}
+class FoodClass implements Food {
+  type = "fruit";
+  brand = "pan pan";
+  //    static brand = "pan pan";    报错 因为static修饰的属性只有类本身能访问；实例不能继承 所以报错
+  static count: number;
+}
+//  接口继承类 会继承类中的成员  不包括实现 和成员类型 private protected 修饰的成员； 当接口继承的类中包含private protected 修饰的属性 这个接口interface只能被这个类的子类实现procted;
+
+class A {
+  protected name: string = "a";
+}
+interface IA extends A {}
+class ChildA extends A implements IA {
+  name = "child-a";
+}
+
+const createInstance = <T>(c: new () => T): T => {
+  return new c();
+};
+class LittleP {
+  public color: string;
+  constructor(public name: string) {
+    this.name = name;
+  }
+}
+console.log(createInstance<LittleP>(LittleP));
