@@ -79,5 +79,5 @@ const enum StatusCode {
 }
 let code = 200;
 if (code == StatusCode.success) {
-  //   console.log(StatusCode); 报错
+  console.log(StatusCode.error); // 报错
 }
