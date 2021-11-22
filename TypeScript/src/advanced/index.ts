@@ -56,6 +56,9 @@ const dog: animalType = {
 /* 🚩   extends 关键字  🚩    */
 /*   🌿 ('1')   用于接口 表示接口之间的继承  支持多重继承 
                 如果用type实现继承 可使用交叉类型
+                3: 用于表示泛型的约束
+                4： 表示条件控制 T extends U ? 'x' : 'y'
+                5:  条件分发    T extends U 当 T为一个联合类型的时候 会进行条件分发  看👇🏻的举例
 
 */
 type s = string;
@@ -81,6 +84,11 @@ type C1 = C<B>; // type C1 = 1 | 2
 type P<T> = [T] extends ["x"] ? 1 : 2;
 type P1 = P<"x" | "y">; // type P1 = 2
 
+//
+type union = string | number;
+type isNumber<T> = T extends number ? "isNumber" : "isString";
+type testIsNumber = isNumber<union>; //type testIsNumber = "isNumber" | "isString"
+
 /* 🚩    【'类型兼容性'】   🚩    */
 
 /*   🌿 ('1')  子类型 能赋值给 父类型   
@@ -93,7 +101,7 @@ type P1 = P<"x" | "y">; // type P1 = 2
 
 1： infer  关键字的 作用是 告诉ts自己去推测 变量的类型  那如果编辑器推导类型失败 会发生怎样的事情呢？
 2： 只能和extends 条件类型上使用 不能在其他地方上使用
-
+3： 对满足的泛型类型进行子类型抽取
 说继承 或者是说分配也好 本质上是一种怎样的关系呢？ 
 A 继承 B 那B 是父类  A 的类型更加具体 B 的类型更加宽泛
                    
@@ -182,7 +190,10 @@ class PersonStr {
 }
 type personType = ConstructorParameters<typeof PersonStr>; //type personType = [name: string, age: number]
 
-/* 🚩    【  typeof class 和class直接作为类型的区别  】  获取类的构造函数参数的类型 🚩    */
+/* 🚩    【  typeof class 和class直接作为类型的区别  】  获取类的构造函数参数的类型 🚩   
+typeof 获取的是类的实例上面的类型，故此只能用在具体的对象上。
+
+*/
 /*   🌿 ('1')    people: People  = new person()  
  因为  用类作为类型 该类型获取的是该类上的实例属性和实例方法（也叫原型方法） 
  所以 该类型的满足条件是  等号右边必须是该类的实例  */
@@ -205,3 +216,77 @@ const people3: typeof People = People;
 /*   🌿 (1) never 可以是任何类型的子类型 既 never可以赋值给任何类型 但是只有never类型可以赋值给never类型    */
 /*   🌿 (2) 类型保护和类型检测的主要思想是 尝试检测属性 方法 或者原型 已确定如何处理值                      */
 /*   🌿 (3) is 是类型别谓词 type predicate                      */
+
+/* 🚩    【 typeof  and keyof 连用】   🚩    */
+/*   🌿 ('1')
+                type p = keyof typeof person         代码的运行顺序为从右到左
+
+*/
+/*   🌿 ('2') 从变量推导出类型 此时的typeof shi 一个类型关键词 只可以用在类型语法中    */
+function Print(x: string) {
+  return x.length;
+}
+type PrintType = typeof Print; //   type PrintType = (x: string) => number
+
+const objectPrint = {
+  x: 1,
+  b: true,
+};
+type objType = typeof objectPrint; // type objType = { x: number; b: boolean;}
+
+/* 🚩    【 any && unknow】   🚩    */
+/*   🌿 ('1') any 或者unknow作为类型都能重新被赋值    */
+/*   🌿 ('2') any 不进行类型检查，若类型从A变为B 此时B不能使用A类型上面的方法 会出错    */
+/*   🌿 ('3') unknow 会进行类型校验，当使用类型上面的方法的时候    */
+
+let a: any = " person";
+a.length;
+a = 123;
+a.length; // ts编译器不提示报错
+
+let b: unknown = "unknow";
+if (typeof b === "string") {
+  b.split("");
+}
+b = 123;
+if (typeof b === "number") {
+  b.toFixed();
+}
+
+/* 🚩    【 泛型】   🚩  
+静态定义动态调用 是ts对自己类型定义的原编程
+
+*/
+/* 🚩    【函数重载】   🚩    
+重载签名： 只有函数参数和返回值的定义；
+实现签名： 有函数实现体{} 
+特点： 如重载签名和实现签名相同 ，则实现签名的函数体里面 要实现 所有的函数重载 包括形参的类型，返回值的类型
+                            对于重载函数里面相同的参数，实现签名的函数参数可以增加类型
+                            重载签名和实现签名的形参个数要相同
+        
+        多个重载签名，一个实现签名
+
+*/
+/* 🚩    【类型兼容】   🚩    
+A = B  则   B 兼容 A   类型B中的所有参数 都在A中能找到对应的参数
+符号表现形式是 =
+使用集合的概念来将 就是 A 包含 B  B 包含于A A的范围更加宽泛（A的参数多，类型也多） B的参数更加具体，（参数少）
+
+
+*/
+/* 🚩    【类型  or 类 】   🚩
+ts 中的子类型是基于结构的子类型 既 结构兼容 就满足子类型的条件
+for class 
+        类型A  类型B    
+
+   若类型B包含所有类型A的参数 则A B的结构相同      类型B 可以称作是类型A的子类型
+          
+
+
+
+*/
+
+/* 🚩    【隐射类型】   🚩    */
+/*   🌿  Partial<T> Readonly<T>   Pick<T, U>   Exclude<T, U>   Extract<T, U>  NonNullable<T>   ReturnType<T>  InstanceType<T>*/
+
+/* 🚩    【 window 上自定义属性】 使用.语法会报错 可以使用【】来定义属性 或者声明window上面有这个属性 .d.ts 文件   🚩    */
